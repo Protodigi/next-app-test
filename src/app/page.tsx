@@ -21,7 +21,7 @@ export default function HomePage() {
       {/* A Card component serves as a container for the page content. */}
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Supabase Todos</CardTitle>
+          <CardTitle>My Todo</CardTitle>
           <CardDescription>Beautiful to-do app with auth</CardDescription>
         </CardHeader>
         <CardContent>
