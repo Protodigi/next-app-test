@@ -1,27 +1,15 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import SignInPage from '@/app/signin/page'
 
-vi.mock('@/lib/supabase/client', () => {
-  return {
-    getSupabaseBrowser: () => ({
-      auth: {
-        signInWithOtp: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        signInWithOAuth: vi.fn().mockResolvedValue({ data: {}, error: null }),
-      },
-    }),
-  }
-})
+describe('SignIn Page', () => {
+  it('renders the sign-in form', () => {
+    // The new page is a Server Component, so we pass the searchParams prop.
+    render(<SignInPage searchParams={{ message: '' }} />)
 
-describe('SignIn', () => {
-  it('renders and sends magic link', async () => {
-    render(<SignInPage />)
-    const input = screen.getByPlaceholderText(/you@example.com/i)
-    fireEvent.change(input, { target: { value: 'user@example.com' } })
-    fireEvent.click(screen.getByRole('button', { name: /magic link/i }))
-    await waitFor(() => {
-      // No error thrown
-      expect(true).toBe(true)
-    })
+    // Check that the main elements are present.
+    expect(screen.getByRole('heading', { name: /Sign in/i })).toBeInTheDocument()
+    expect(screen.getByPlaceholderText(/you@example.com/i)).toBeInTheDocument()
+    expect(screen.getByPlaceholderText(/Password/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Sign in/i })).toBeInTheDocument()
   })
 })
-
