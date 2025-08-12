@@ -37,6 +37,7 @@ export async function addTodo(formData: FormData) {
     }
     
     revalidatePath('/todos')
+    redirect('/todos')
 }
 
 export async function toggleTodo(id: string, completed: boolean) {
@@ -59,6 +60,7 @@ export async function toggleTodo(id: string, completed: boolean) {
     }
     
     revalidatePath('/todos')
+    redirect('/todos')
 }
 
 export async function deleteTodo(id: string) {
@@ -81,4 +83,5 @@ export async function deleteTodo(id: string) {
     }
     
     revalidatePath('/todos')
+    redirect('/todos')
 }
