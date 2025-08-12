@@ -317,7 +317,7 @@ The issue was in the `useEffect` hook in `src/app/todos/page.tsx`. The subscript
           { event: '*', schema: 'public', table: 'todos' },
           (payload) => {
             setTodos((prev) => {
-              const const next = [...prev]
+              const next = [...prev]
               if (payload.eventType === 'INSERT') {
                 next.unshift(payload.new as Todo)
               } else if (payload.eventType === 'UPDATE') {

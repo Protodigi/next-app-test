@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { signup } from "./actions"
 
-export default function SignUpPage({ searchParams }: { searchParams?: { message?: string } }) {
-  const message = searchParams?.message
+export default function SignUpPage({ 
+  searchParams 
+}: { 
+  searchParams?: Record<string, string | string[] | undefined> 
+}) {
+  const message = Array.isArray(searchParams?.message) ? searchParams.message[0] : (searchParams?.message ?? '')
 
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
@@ -18,7 +22,7 @@ export default function SignUpPage({ searchParams }: { searchParams?: { message?
           <form action={signup} className="space-y-3">
             <Input type="email" name="email" placeholder="you@example.com" required />
             <Input type="password" name="password" placeholder="Password" required />
-            <Button className="w-full">Create account</Button>
+            <Button type="submit" className="w-full">Create account</Button>
             {message && (
               <p className="mt-4 p-4 bg-foreground/10 text-foreground text-center">
                 {message}

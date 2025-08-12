@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { forgotPassword } from "./actions"
 
-export default function ForgotPasswordPage({ searchParams }: { searchParams?: { message?: string } }) {
-  const message = searchParams?.message
+export default function ForgotPasswordPage({ 
+  searchParams 
+}: { 
+  searchParams?: Record<string, string | string[] | undefined> 
+}) {
+  const message = Array.isArray(searchParams?.message) ? searchParams.message[0] : (searchParams?.message ?? '')
 
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
@@ -17,7 +21,7 @@ export default function ForgotPasswordPage({ searchParams }: { searchParams?: { 
         <CardContent className="space-y-4">
           <form action={forgotPassword} className="space-y-3">
             <Input type="email" name="email" placeholder="you@example.com" required />
-            <Button className="w-full">Send Reset Link</Button>
+            <Button type="submit" className="w-full">Send Reset Link</Button>
             {message && (
               <p className="mt-4 p-4 bg-foreground/10 text-foreground text-center">
                 {message}

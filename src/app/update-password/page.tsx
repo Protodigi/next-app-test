@@ -4,9 +4,13 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { updatePassword } from "./actions"
 
-export default function UpdatePasswordPage({ searchParams }: { searchParams?: { message?: string, code?: string } }) {
-  const message = searchParams?.message
-  const code = searchParams?.code
+export default function UpdatePasswordPage({ 
+  searchParams 
+}: { 
+  searchParams?: Record<string, string | string[] | undefined> 
+}) {
+  const message = Array.isArray(searchParams?.message) ? searchParams.message[0] : (searchParams?.message ?? '')
+  const code = Array.isArray(searchParams?.code) ? searchParams.code[0] : (searchParams?.code ?? '')
 
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
@@ -17,10 +21,12 @@ export default function UpdatePasswordPage({ searchParams }: { searchParams?: { 
         </CardHeader>
         <CardContent className="space-y-4">
           <form action={updatePassword} className="space-y-3">
-            <input type="hidden" name="code" value={code} />
+            <input type="hidden" name="code" value={code || ''} />
             <Input type="password" name="password" placeholder="New Password" required />
             <Input type="password" name="confirmPassword" placeholder="Confirm New Password" required />
-            <Button className="w-full">Update Password</Button>
+            <Button type="submit" className="w-full" disabled={!code}>
+              Update Password
+            </Button>
             {message && (
               <p className="mt-4 p-4 bg-foreground/10 text-foreground text-center">
                 {message}

@@ -9,21 +9,21 @@ export async function addTodo(formData: FormData) {
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
-        return redirect('/signin?message=Please sign in to add todos')
+        return redirect('/signin?message=' + encodeURIComponent('Please sign in to add todos'))
     }
 
     const title = formData.get('title')
     if (!title) {
-        return redirect('/todos?message=Todo title is required')
+        return redirect('/todos?message=' + encodeURIComponent('Todo title is required'))
     }
 
     const titleStr = title.toString().trim()
     if (!titleStr) {
-        return redirect('/todos?message=Todo title cannot be empty')
+        return redirect('/todos?message=' + encodeURIComponent('Todo title cannot be empty'))
     }
 
     if (titleStr.length > 500) {
-        return redirect('/todos?message=Todo title is too long (max 500 characters)')
+        return redirect('/todos?message=' + encodeURIComponent('Todo title is too long (max 500 characters)'))
     }
 
     const { error } = await supabase.from('todos').insert({ 
@@ -33,7 +33,7 @@ export async function addTodo(formData: FormData) {
     
     if (error) {
         console.error('Error adding todo:', error)
-        return redirect('/todos?message=Failed to add todo')
+        return redirect('/todos?message=' + encodeURIComponent('Failed to add todo'))
     }
     
     revalidatePath('/todos')
@@ -44,7 +44,7 @@ export async function toggleTodo(id: string, completed: boolean) {
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
-        return redirect('/signin?message=Please sign in to update todos')
+        return redirect('/signin?message=' + encodeURIComponent('Please sign in to update todos'))
     }
 
     const { error } = await supabase
@@ -55,7 +55,7 @@ export async function toggleTodo(id: string, completed: boolean) {
     
     if (error) {
         console.error('Error toggling todo:', error)
-        return redirect('/todos?message=Failed to update todo')
+        return redirect('/todos?message=' + encodeURIComponent('Failed to update todo'))
     }
     
     revalidatePath('/todos')
@@ -66,7 +66,7 @@ export async function deleteTodo(id: string) {
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
-        return redirect('/signin?message=Please sign in to delete todos')
+        return redirect('/signin?message=' + encodeURIComponent('Please sign in to delete todos'))
     }
 
     const { error } = await supabase
@@ -77,7 +77,7 @@ export async function deleteTodo(id: string) {
     
     if (error) {
         console.error('Error deleting todo:', error)
-        return redirect('/todos?message=Failed to delete todo')
+        return redirect('/todos?message=' + encodeURIComponent('Failed to delete todo'))
     }
     
     revalidatePath('/todos')
