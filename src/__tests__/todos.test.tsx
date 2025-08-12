@@ -10,7 +10,7 @@ vi.mock('react', async () => {
   const useOptimistic = (initialState: any, reducer: (state: any, action: any) => any) => {
     const [state, setState] = React.useState(initialState);
     const dispatch = (action: any) => {
-      setState(reducer(state, action));
+      setState(prev => reducer(prev, action));
     };
     return [state, dispatch];
   };
@@ -70,8 +70,9 @@ describe('TodosClient Component', () => {
       expect(todoText).toHaveClass('line-through')
     })
 
-    // Check that the server action was called.
-    expect(toggleTodo).toHaveBeenCalledWith('1', false)
+    // Check that the server action was called with the correct toggle value.
+    expect(toggleTodo).toHaveBeenCalledWith('1', true)
+    expect(toggleTodo).toHaveBeenCalledTimes(1)
   })
 
   it('optimistically deletes a todo and calls the server action', async () => {

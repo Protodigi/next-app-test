@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { signup } from "./actions"
 
-export default function SignUpPage({ searchParams }: { searchParams: { message: string } }) {
+export default function SignUpPage({ searchParams }: { searchParams?: { message?: string } }) {
+  const message = searchParams?.message
+
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
       <Card className="w-full max-w-md">
@@ -17,9 +19,9 @@ export default function SignUpPage({ searchParams }: { searchParams: { message: 
             <Input type="email" name="email" placeholder="you@example.com" required />
             <Input type="password" name="password" placeholder="Password" required />
             <Button className="w-full">Create account</Button>
-            {searchParams?.message && (
+            {message && (
               <p className="mt-4 p-4 bg-foreground/10 text-foreground text-center">
-                {searchParams.message}
+                {message}
               </p>
             )}
           </form>

@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         {/* 
           The Providers component wraps the entire application, making essential services
-          like TanStack Query and Sonner (for toasts) available to all pages.
+          like Sonner (for toasts) available to all pages.
           The `children` prop here is the actual page content being rendered.
         */}
         <Providers>{children}</Providers>

@@ -62,6 +62,8 @@ export default function TodosClient({ todos, userEmail }: { todos: Todo[], userE
                             id="new-todo"
                             name="title"
                             placeholder="Add a new task"
+                            aria-label="Add a new task"
+                            required
                         />
                         <Button type="submit">
                             <Plus className="h-4 w-4 mr-2" /> Add
@@ -81,7 +83,7 @@ export default function TodosClient({ todos, userEmail }: { todos: Todo[], userE
                                     checked={todo.completed}
                                     onCheckedChange={async () => {
                                         setOptimisticTodos({ action: 'toggle', todo })
-                                        await toggleTodo(todo.id, todo.completed)
+                                        await toggleTodo(todo.id, !todo.completed)
                                     }}
                                 />
                                 <span className={todo.completed ? "line-through text-muted-foreground" : ""}>

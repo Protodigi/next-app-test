@@ -16,10 +16,10 @@ export type Todo = {
 export default async function TodosPage() {
   const supabase = createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-  if (!user) {
-    return redirect('/signin')
+  if (authError || !user) {
+    redirect('/signin')
   }
 
   const { data: todos } = await supabase.from('todos').select().order('inserted_at', { ascending: false })

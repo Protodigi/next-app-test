@@ -11,4 +11,4 @@ All notable changes to this project will be documented in this file.
 - Replaced all client-side Supabase calls with Server Actions for mutations (add, delete, toggle) and authentication.
 - Implemented React's `useOptimistic` hook on the todos page to maintain an instantaneous UI while leveraging Server Actions.
 - Overhauled the entire test suite (`vitest`) to be compatible with the new server-centric architecture, mocking server actions and testing the new components.
-- Removed the TanStack Query dependency in favor of the new server-side data flow.
+- Cleaned up TanStack Query provider setup and removed unused dependencies in favor of the new server-side data flow.
