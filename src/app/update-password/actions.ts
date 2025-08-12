@@ -1,6 +1,6 @@
 'use server'
 
-import { createServerClient } from '@/utils/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 
@@ -45,7 +45,7 @@ export async function updatePassword(formData: FormData) {
     return redirect('/update-password?message=' + encodeURIComponent('Password must be at least 6 characters'))
   }
 
-  const supabase = createServerClient()
+  const supabase = createClient()
   
   try {
     const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(codeStr)

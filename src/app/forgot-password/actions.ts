@@ -1,6 +1,6 @@
 'use server'
 
-import { createServerClient } from '@/utils/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 
 export async function forgotPassword(formData: FormData) {
@@ -21,7 +21,7 @@ export async function forgotPassword(formData: FormData) {
     return redirect('/forgot-password?message=' + encodeURIComponent('Please enter a valid email address'))
   }
 
-  const supabase = createServerClient()
+  const supabase = createClient()
   const { error } = await supabase.auth.resetPasswordForEmail(emailStr, {
     redirectTo: `${new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').origin}/auth/callback?next=/update-password`,
   })
