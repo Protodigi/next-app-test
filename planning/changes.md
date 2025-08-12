@@ -660,3 +660,35 @@ The application now follows security best practices, provides robust input valid
 
 **Status:** ✅ **COMPLETE** - All critical issues resolved
 **Next Steps:** Monitor application performance and user feedback in production
+
+---
+**2025-08-12:** Added Password Reset Functionality.
+
+# Password Reset Functionality
+
+## Overview
+This document explains the implementation of the password reset functionality. Users who have forgotten their password can now request a reset link via email and set a new password.
+
+## Feature Breakdown
+
+### 1. Forgot Password Page
+- **Route:** `/forgot-password`
+- **File:** `src/app/forgot-password/page.tsx`
+- **Description:** A page with a form for users to enter their email address to receive a password reset link.
+
+### 2. Forgot Password Action
+- **File:** `src/app/forgot-password/actions.ts`
+- **Description:** A server action that handles the form submission from the forgot password page. It validates the email and uses Supabase's `resetPasswordForEmail` method to send the reset link.
+
+### 3. Update Password Page
+- **Route:** `/update-password`
+- **File:** `src/app/update-password/page.tsx`
+- **Description:** The page where users land after clicking the reset link in their email. It contains a form to enter and confirm a new password.
+
+### 4. Update Password Action
+- **File:** `src/app/update-password/actions.ts`
+- **Description:** A server action that handles the form submission from the update password page. It validates the new password, exchanges the authorization code from the reset link for a session, and then updates the user's password using Supabase's `updateUser` method.
+
+## Security Considerations
+- The password reset flow uses Supabase's built-in functionality, which handles the secure generation and expiration of reset tokens.
+- The `updatePassword` action requires a valid authorization code, preventing unauthorized password changes.
