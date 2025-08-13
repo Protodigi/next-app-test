@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Plus, LogOut, Trash2 } from "lucide-react"
 import { addTodo, deleteTodo, toggleTodo } from './actions'
+import { signOut } from '@/app/auth/signout/actions'
 
 export default function TodosClient({ todos, userEmail }: { todos: Todo[], userEmail: string | null }) {
     const formRef = useRef<HTMLFormElement>(null)
@@ -45,7 +46,7 @@ export default function TodosClient({ todos, userEmail }: { todos: Todo[], userE
                         {optimisticTodos.filter(t => !t.completed).length} remaining
                     </CardDescription>
                 </div>
-                <form action="/auth/signout" method="post">
+                <form action={signOut}>
                     <Button variant="secondary" type="submit">
                         <LogOut className="h-4 w-4 mr-2" /> Sign out{userEmail ? ` (${userEmail})` : ""}
                     </Button>
