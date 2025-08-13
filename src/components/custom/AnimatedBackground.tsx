@@ -7,11 +7,12 @@ import { useRef } from "react";
 
 const Background = ({ texturePath }: { texturePath: string }) => {
   const texture = useTexture(texturePath);
-  const ref = useRef<THREE.Mesh>(null!);
+  const ref = useRef<THREE.Mesh | null>(null);
 
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
   useFrame((_, delta) => {
+    if (!ref.current) return;
     if (ref.current.material instanceof THREE.MeshBasicMaterial) {
       ref.current.material.map?.offset.add(new THREE.Vector2(delta * 0.01, delta * 0.01));
     }

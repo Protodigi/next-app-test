@@ -13,10 +13,12 @@ export default function HomePage() {
   return (
     // This main element is styled to be a full-screen container that centers its content.
     // It uses the dark theme variant and has a background image applied.
-    <main className="dark min-h-screen flex items-center justify-center p-6">
-      <AnimatedBackground texturePath="/images/app-bg.png" />
+    <main className="dark min-h-screen flex items-center justify-center p-6 relative">
+      <div className="pointer-events-none absolute inset-0 z-0">
+        <AnimatedBackground texturePath="/images/app-bg.png" />
+      </div>
       {/* A Card component serves as a container for the page content. */}
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md relative z-10 pointer-events-auto">
         <CardHeader>
           <AnimatedTitle title="MY PRETTY TODO APP" />
         </CardHeader>
