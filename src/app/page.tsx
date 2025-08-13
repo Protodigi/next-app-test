@@ -1,6 +1,8 @@
-import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import Link from "next/link";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import AnimatedBackground from "@/components/custom/AnimatedBackground";
+import AnimatedTitle from "@/components/custom/AnimatedTitle";
 
 /**
  * The main landing page of the application.
@@ -11,18 +13,12 @@ export default function HomePage() {
   return (
     // This main element is styled to be a full-screen container that centers its content.
     // It uses the dark theme variant and has a background image applied.
-    <main
-      className="dark min-h-screen flex items-center justify-center p-6"
-      style={{
-        backgroundImage: 'url("/images/app-bg.png")',
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}>
+    <main className="dark min-h-screen flex items-center justify-center p-6">
+      <AnimatedBackground texturePath="/images/app-bg.png" />
       {/* A Card component serves as a container for the page content. */}
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>My Todo</CardTitle>
-          <CardDescription>Beautiful to-do app with auth</CardDescription>
+          <AnimatedTitle title="MY PRETTY TODO APP" />
         </CardHeader>
         <CardContent>
           <div className="flex gap-3">
@@ -42,5 +38,5 @@ export default function HomePage() {
         </CardContent>
       </Card>
     </main>
-  )
+  );
 }

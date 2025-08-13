@@ -60,10 +60,10 @@
     This is how Tailwind's class-based dark mode works.
   */
   .dark {
-    --background: #0f172a;
-    --foreground: #e0e7ff;
-    --card: #1e1b4b;
-    --card-foreground: #e0e7ff;
+    --background: #2a214d;
+    --foreground: #ffffff;
+    --card: #312e81;
+    --card-foreground: #ffffff;
     --popover: #1e1b4b;
     --popover-foreground: #e0e7ff;
     --primary: #8b5cf6;
