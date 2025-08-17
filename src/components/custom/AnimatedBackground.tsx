@@ -1,13 +1,14 @@
 "use client";
 
 import * as THREE from "three";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 
 const Background = ({ texturePath }: { texturePath: string }) => {
   const texture = useTexture(texturePath);
   const ref = useRef<THREE.Mesh | null>(null);
+  const { viewport } = useThree();
 
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
@@ -18,9 +19,28 @@ const Background = ({ texturePath }: { texturePath: string }) => {
     }
   });
 
+  useEffect(() => {
+    if (ref.current && texture.image) {
+      const imageAspect = texture.image.width / texture.image.height;
+      const viewportAspect = viewport.width / viewport.height;
+      
+      let scaleX, scaleY;
+      
+      if (viewportAspect > imageAspect) {
+        scaleX = viewport.width;
+        scaleY = viewport.width / imageAspect;
+      } else {
+        scaleX = viewport.height * imageAspect;
+        scaleY = viewport.height;
+      }
+      
+      ref.current.scale.set(scaleX, scaleY, 1);
+    }
+  }, [viewport.width, viewport.height, texture]);
+
   return (
     <mesh ref={ref}>
-      <planeGeometry args={[10, 10]} />
+      <planeGeometry args={[1, 1]} />
       <meshBasicMaterial map={texture} />
     </mesh>
   );
@@ -28,8 +48,11 @@ const Background = ({ texturePath }: { texturePath: string }) => {
 
 const AnimatedBackground = ({ texturePath }: { texturePath: string }) => {
   return (
-    <div className="absolute top-0 left-0 w-full h-full -z-10">
-      <Canvas>
+    <div className="fixed inset-0 -z-10">
+      <Canvas
+        camera={{ position: [0, 0, 1], fov: 75 }}
+        style={{ width: '100vw', height: '100vh' }}
+      >
         <Background texturePath={texturePath} />
       </Canvas>
     </div>
