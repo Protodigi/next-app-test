@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { signup } from "./actions"
+import AnimatedBackground from "@/components/custom/AnimatedBackground"
 
 export default function SignUpPage({ 
   searchParams 
@@ -12,7 +13,8 @@ export default function SignUpPage({
   const message = Array.isArray(searchParams?.message) ? searchParams.message[0] : (searchParams?.message ?? '')
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-6">
+    <main className="high-contrast min-h-screen flex items-center justify-center p-6">
+      <AnimatedBackground texturePath="/images/app-bg.png" />
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Create account</CardTitle>

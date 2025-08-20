@@ -1,66 +1,81 @@
-# TanStack Query Implementation Plan
+# Tanstack Refactor Plan
 
-This document outlines the strategy for refactoring the application to use TanStack Query (v5) for server state management, incorporating an optimistic UI pattern for all to-do operations.
+This document outlines the process of refactoring the application to use the Tanstack suite of libraries for improved state management, data display, and form handling.
 
-## 1. Installation
+## Phase 1: Tanstack Query & Tanstack Table
 
-Install the necessary packages:
+### 1. Installation (Completed)
 
-```bash
-npm install @tanstack/react-query @tanstack/react-query-devtools
-```
+- `@tanstack/react-query`
+- `@tanstack/react-table`
+- `@tanstack/react-query-devtools`
 
-## 2. Provider Setup
+*Note: `@tanstack/react-form` was deferred due to dependency conflicts with the current Vite version used for testing.*
 
-To make TanStack Query available throughout the app, we will set up a client provider.
+### 2. Tanstack Query Setup
 
-- **File:** `src/app/providers.tsx`
-- **Actions:**
-  1.  Create a single `QueryClient` instance.
-  2.  Wrap the existing `Toaster` component with `<QueryClientProvider>`.
-  3.  Include `<ReactQueryDevtools initialIsOpen={false} />` within the provider to enable the debugging tools in development.
+- **Objective:** Centralize server state management, replacing manual `useEffect` fetching with `useQuery` for caching and performance.
+- **Steps:**
+    - Create a `QueryClient` instance.
+    - Wrap the main application layout in a `QueryClientProvider`.
+    - Add `ReactQueryDevtools` for debugging.
 
-## 3. Refactoring `src/app/todos/page.tsx`
+### 3. Todos Page Refactor (`/todos`)
 
-This is the core of the refactor. We will replace the existing `useState`-based logic with TanStack Query hooks.
+- **Objective:** Overhaul the todos feature to use Tanstack Query for data fetching/mutations and Tanstack Table for display.
 
-### Data Fetching (`useQuery`)
+#### Data Fetching (`useQuery`)
+- Replace the current data fetching logic in `todos-client.tsx` with a `useQuery` hook.
+- **Query Key:** `['todos']`
+- **Query Function:** An async function that uses the Supabase client to fetch all todos.
 
--   **Remove State:** The `useState` for `todos` and `loading` will be removed.
--   **Query Definition:**
-    -   `queryKey`: `['todos']`
-    -   `queryFn`: An `async` function that calls `supabase.from('todos').select().order(...)` to fetch the data.
--   **Hook Usage:** `const { data: todos, isLoading } = useQuery({ queryKey, queryFn })`
+#### Data Mutations (`useMutation`)
+- Wrap the existing Server Actions (`addTodo`, `updateTodo`, `deleteTodo`) in `useMutation` hooks.
+- On success, invalidate the `['todos']` query to trigger an automatic refetch and keep the UI in sync.
 
-### Data Mutations (`useMutation`)
+#### Data Display (`useReactTable`)
+- Create a `columns.ts` file to define the table structure for a "todo" item.
+- Columns will include:
+    - A checkbox for the "completed" status.
+    - The task description.
+    - An "actions" column with buttons for editing and deleting.
+- Use the `useReactTable` hook in `todos-client.tsx` to manage the table state.
+- Render the table using existing `shadcn/ui` components (`<Card>`, `<Table>`, `<Checkbox>`, `<Button>`) to maintain visual consistency.
 
-We will create three separate `useMutation` hooks for adding, toggling, and deleting to-dos. All will follow the optimistic update pattern.
+---
 
-#### Add To-Do
+**Timestamp:** (Manual entry, as dynamic timestamps are not supported)
 
--   `mutationFn`: Takes a `newTitle` string and calls `supabase.from('todos').insert(...)`.
--   `onMutate`: This is the optimistic update step.
-    1.  Cancel any outgoing `todos` queries to prevent them from overwriting our optimistic update.
-    2.  Get the current list of todos from the query cache via `queryClient.getQueryData(['todos'])`.
-    3.  Create a new to-do object with a temporary ID (e.g., `Date.now()`) and the `newTitle`.
-    4.  Add this new to-do to the beginning of the list.
-    5.  Update the cache with `queryClient.setQueryData(['todos'], newList)`.
-    6.  Return the previous list as context for potential rollback.
--   `onError`: If the mutation fails, use the context from `onMutate` to roll back the UI by setting the query data to the previous list.
--   `onSettled`: Always invalidate the `todos` query (`queryClient.invalidateQueries(['todos'])`) to re-fetch the latest data from the server. This ensures the temporary to-do is replaced with the real one from the database (with the correct ID and timestamp).
+**Change:** Modified Server Actions in `src/app/todos/actions.ts`
 
-#### Toggle To-Do
+- **Removed `redirect()` calls:** The actions no longer handle navigation. This is now the responsibility of the client-side component, which is better for a Single Page Application (SPA) feel.
+- **Return Data on Success:** The `addTodo` action now returns the newly created todo object from the database. This allows the client to get the server-assigned ID and timestamp immediately.
+- **Throw Errors on Failure:** Instead of redirecting with an error message, the actions now `throw new Error()`. This provides a clear error to the `useMutation` hook on the client, allowing for proper error handling and state management.
 
--   `mutationFn`: Takes a `todo` object and calls `supabase.from('todos').update({ completed: !todo.completed })`.
--   `onMutate`: Similar to adding, but instead of adding to the list, we will find the specific to-do in the query cache and update its `completed` property.
--   `onError` & `onSettled`: Same rollback and re-fetching logic as the add mutation.
+---
 
-#### Delete To-Do
+**Timestamp:** (Manual entry, as dynamic timestamps are not supported)
 
--   `mutationFn`: Takes a `todoId` and calls `supabase.from('todos').delete()`.
--   `onMutate`: Find the to-do in the query cache and filter it out of the list.
--   `onError` & `onSettled`: Same rollback and re-fetching logic.
+**Change:** Implemented Hybrid SSR with a dedicated Provider
 
-## 4. Changelog
+- **Created `src/app/todos/todos-provider.tsx`:** This new client component is now responsible for creating the `QueryClient` instance and wrapping the `todos` feature with the `QueryClientProvider` and `HydrationBoundary`. This isolates the query state to the specific feature that needs it.
+- **Updated `src/app/todos/page.tsx`:** The server component now prefetches the data and passes the `dehydratedState` to the new `TodosProvider`, which wraps the `TodosClient`.
+- **Cleaned up `src/app/providers.tsx`:** Removed the global `QueryClientProvider` and `HydrationBoundary` to avoid conflicts and keep the main provider clean.
 
-After the implementation is complete and verified, a new entry will be added to `changelog.md` documenting the refactor.
+---
+
+**Timestamp:** (Manual entry, as dynamic timestamps are not supported)
+
+**Change:** Completed the refactor of `todos-client.tsx` and `columns.tsx`
+
+- **`todos-client.tsx`:**
+    - Replaced all `useState` and `useOptimistic` logic with `useQuery` and `useMutation` hooks from Tanstack Query.
+    - Implemented `useReactTable` to manage the data grid.
+    - The UI is now rendered as a `<table>` using `shadcn/ui` components.
+    - Added toast notifications from `sonner` for user feedback on mutation success or failure.
+    - Passed the mutation functions to the table instance via the `meta` option.
+- **`columns.tsx`:**
+    - The table columns now access the mutation functions from the `table.options.meta` object.
+    - The checkbox and delete button are now fully functional, triggering the respective mutations.
+- **`types/table.d.ts`:**
+    - Created a new type definition file to extend the `TableMeta` interface, providing type safety for the functions passed in the `meta` object.

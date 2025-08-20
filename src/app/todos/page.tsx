@@ -1,6 +1,8 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import TodosClient from './todos-client'
+import { dehydrate, QueryClient } from '@tanstack/react-query'
+import TodosProvider from './todos-provider'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,6 +17,7 @@ export type Todo = {
 
 export default async function TodosPage() {
   const supabase = createClient()
+  const queryClient = new QueryClient()
 
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
@@ -22,7 +25,16 @@ export default async function TodosPage() {
     redirect('/signin')
   }
 
-  const { data: todos } = await supabase.from('todos').select().order('inserted_at', { ascending: false })
+  await queryClient.prefetchQuery({
+    queryKey: ['todos'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('todos').select().order('inserted_at', { ascending: false })
+      if (error) {
+        throw error
+      }
+      return data
+    },
+  })
 
   return (
     <main
@@ -32,7 +44,9 @@ export default async function TodosPage() {
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}>
-      <TodosClient todos={todos ?? []} userEmail={user.email ?? null} />
+      <TodosProvider dehydratedState={dehydrate(queryClient)}>
+        <TodosClient userEmail={user.email ?? null} />
+      </TodosProvider>
     </main>
   )
 }
