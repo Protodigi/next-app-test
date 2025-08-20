@@ -79,3 +79,124 @@ This document outlines the process of refactoring the application to use the Tan
     - The checkbox and delete button are now fully functional, triggering the respective mutations.
 - **`types/table.d.ts`:**
     - Created a new type definition file to extend the `TableMeta` interface, providing type safety for the functions passed in the `meta` object.
+
+---
+
+## Detailed Breakdown of Changes
+
+### From `useOptimistic` to `useMutation`
+
+The original implementation used React's `useOptimistic` hook to provide immediate feedback to the user. This is a great feature, but Tanstack Query's `useMutation` provides a more powerful and integrated way to handle optimistic updates, especially when dealing with server-side state.
+
+**Before (`todos-client.tsx`):**
+
+```tsx
+const [optimisticTodos, setOptimisticTodos] = useOptimistic(
+    todos,
+    (state, { action, todo }: { action: 'add' | 'delete' | 'toggle', todo: any }) => {
+        // ... logic to manually update the state
+    }
+)
+
+const handleFormSubmit = async (formData: FormData) => {
+    // ...
+    setOptimisticTodos({ action: 'add', todo: { /* ... */ } })
+    await addTodo(formData)
+}
+```
+
+**After (`todos-client.tsx`):**
+
+```tsx
+const addTodoMutation = useMutation({
+    mutationFn: addTodo,
+    onSuccess: (newTodo) => {
+        queryClient.setQueryData(['todos'], (oldTodos: Todo[] = []) => [...oldTodos, newTodo])
+        toast.success("Todo added successfully!")
+        formRef.current?.reset()
+    },
+    onError: (error) => {
+        toast.error(`Failed to add todo: ${error.message}`)
+    },
+})
+
+const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    addTodoMutation.mutate(formData)
+}
+```
+
+### Hybrid SSR with `HydrationBoundary`
+
+To maintain the benefits of SSR while using a client-side data fetching library, we implemented a hybrid approach. The server prefetches the data, and the client hydrates the cache with that data.
+
+**`todos/page.tsx` (Server Component):**
+
+```tsx
+export default async function TodosPage() {
+  const queryClient = new QueryClient()
+
+  await queryClient.prefetchQuery({
+    queryKey: ['todos'],
+    queryFn: /* ... fetch data ... */,
+  })
+
+  return (
+      <TodosProvider dehydratedState={dehydrate(queryClient)}>
+        <TodosClient userEmail={user.email ?? null} />
+      </TodosProvider>
+  )
+}
+```
+
+**`todos/todos-provider.tsx` (Client Component):**
+
+```tsx
+export default function TodosProvider({ children, dehydratedState }) {
+  const [queryClient] = useState(() => new QueryClient())
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <HydrationBoundary state={dehydratedState}>
+        {children}
+        <ReactQueryDevtools initialIsOpen={false} />
+      </HydrationBoundary>
+    </QueryClientProvider>
+  )
+}
+```
+
+### Tanstack Table and `meta` for Actions
+
+Instead of passing mutation functions down as props, we used the `meta` option in `useReactTable` to provide the column definitions with access to the mutations.
+
+**`todos-client.tsx`:**
+
+```tsx
+const table = useReactTable({
+    data: todos ?? [],
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    meta: {
+        toggleTodo: toggleTodoMutation.mutate,
+        deleteTodo: deleteTodoMutation.mutate,
+    }
+})
+```
+
+**`columns.tsx`:**
+
+```tsx
+// ...
+cell: ({ row, table }) => (
+  <Checkbox
+    checked={row.original.completed}
+    onCheckedChange={() => {
+        table.options.meta?.toggleTodo(row.original.id, row.original.completed)
+    }}
+    aria-label="Select row"
+  />
+),
+// ...
+```
